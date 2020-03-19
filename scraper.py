@@ -171,7 +171,7 @@ def parse_page(soup, conn):
 
     # parse number of confirmed cases and deceased
     box = soup.find("h3", string=re.compile("Update Kanton St.Gallen")).parent.find("p")
-    box_str = "".join([unicode(x) for x in box.contents]) 
+    box_str = "".join([str(x) for x in box.contents]) 
 
     # <p>19.03.2020:<br/>Bestätigte Fälle: 85<br/><br/></p>
     date_str = re.search("^([ \d\.]+)\:", box_str).group(1)
