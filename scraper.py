@@ -16,16 +16,17 @@ c.execute(
     '''
     CREATE TABLE IF NOT EXISTS data (
         date text,
-        area text,
-        tested  integer,
-        tested_pos  integer, 
-        confirmed integer,
         time text,
-        deceased integer,
-        hospitalized integer,
-        recovered integer,
+        abbreviation_canton_and_fl text,
+        ncumul_tested  integer,
+        ncumul_conf integer,
+        ncumul_hosp integer,
+        ncumul_ICU integer,
+        ncumul_vent integer,
+        ncumul_released integer,
+        ncumul_deceased integer,
         source text,
-        UNIQUE(date, time)
+        UNIQUE(date, time, abbreviation_canton_and_fl)
     )
     '''
 )
@@ -35,14 +36,15 @@ conn.commit()
 def parse_page(soup, conn):
     data = {
         'date': None,
-        'area': 'Canton_SG',
-        'tested': None,
-        'tested_pos': None, 
-        'confirmed': None,
         'time': '',
-        'deceased': None,
+        'area': 'SG',
+        'tested': None,
+        'confirmed': None,
         'hospitalized': None,
-        'recovered': None,
+        'icu': None,
+        'vent': None,
+        'released': None,
+        'deceased': None,
         'source': 'https://www.sg.ch/tools/informationen-coronavirus.html'
     }
 
@@ -63,37 +65,39 @@ def parse_page(soup, conn):
     c = conn.cursor()
 
     try:
+        print(data)
         c.execute(
             '''
             INSERT INTO data (
                 date,
                 time,
-                area,
-                tested,
-                tested_pos, 
-                confirmed,
-                deceased,
-                hospitalized,
-                recovered,
+                abbreviation_canton_and_fl,
+                ncumul_tested,
+                ncumul_conf,
+                ncumul_hosp,
+                ncumul_ICU,
+                ncumul_vent,
+                ncumul_released,
+                ncumul_deceased,
                 source
             )
             VALUES
-            (?,?,?,?,?,?,?,?,?,?)
+            (?,?,?,?,?,?,?,?,?,?,?)
             ''',
             [
                 data['date'],
                 data['time'],
                 data['area'],
                 data['tested'],
-                data['tested_pos'],
                 data['confirmed'],
-                data['deceased'],
                 data['hospitalized'],
-                data['recovered'],
+                data['icu'],
+                data['vent'],
+                data['released'],
+                data['deceased'],
                 data['source'],
             ]
         )
-        print(data)
     except sqlite3.IntegrityError:
         print("Error: Data for this date + time has already been added")
     finally:
